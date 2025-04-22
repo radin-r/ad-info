@@ -41,9 +41,12 @@
 </head>
 <body>
   <script>
-    fetch('https://raw.githubusercontent.com/radin-r/ad-info/main/ad-config.json')
-      .then(res => res.json())
-      .then(data => showAds(data.advertisements));
+    fetch('https://raw.githubusercontent.com/radin-r/app_driverinfo/main/ad-config.json')
+  .then(response => response.json())
+  .then(data => {
+    const ads = data.advertisements;
+    showAds(ads);
+  });
 
     function showAds(ads) {
       let adIndex = 0;
