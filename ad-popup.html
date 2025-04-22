@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ad Popup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    #ad-popup {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .ad-media {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 20px;
+      padding: 8px 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background: #222;
+      color: white;
+      font-weight: bold;
+      z-index: 10000;
+    }
+    .close-btn:hover { background: red; }
+  </style>
+</head>
+<body>
+  <script>
+    fetch('https://raw.githubusercontent.com/radin-r/app_driverinfo/main/ad-config.json')
+      .then(res => res.json())
+      .then(data => showAds(data.advertisements));
+
+    function showAds(ads) {
+      let adIndex = 0;
+
+      function showAd(ad) {
+        const adContainer = document.createElement('div');
+        adContainer.id = "ad-popup";
+
+        let adMedia;
+        if (ad.type === 'image') {
+          adMedia = document.createElement('img');
+          adMedia.src = ad.Url;
+        } else if (ad.type === 'video') {
+          adMedia = document.createElement('video');
+          adMedia.src = ad.Url;
+          adMedia.controls = true;
+          adMedia.autoplay = true;
+        }
+        adMedia.className = "ad-media";
+
+        const closeButton = document.createElement('button');
+        closeButton.className = "close-btn";
+        closeButton.disabled = true;
+
+        let timeLeft = Math.floor((ad.mandatoryDuration || 10000) / 1000);
+        closeButton.innerText = timeLeft + " S";
+
+        const interval = setInterval(() => {
+          timeLeft--;
+          if (timeLeft > 0) {
+            closeButton.innerText = timeLeft + " S";
+          } else {
+            clearInterval(interval);
+            closeButton.innerText = "X";
+            closeButton.disabled = false;
+          }
+        }, 1000);
+
+        closeButton.onclick = () => {
+          adContainer.remove();
+        };
+
+        adContainer.appendChild(adMedia);
+        adContainer.appendChild(closeButton);
+        document.body.appendChild(adContainer);
+      }
+
+      if (ads.length > 0) showAd(ads[0]);
+    }
+  </script>
+</body>
+</html>
