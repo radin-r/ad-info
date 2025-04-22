@@ -42,7 +42,7 @@
 <body>
   <script>
     fetch('https://raw.githubusercontent.com/radin-r/ad-info/main/ad-config.json')
-.then(response => response.json())
+.then(response => ad-config.json())
   .then(data => {
     const ads = data.advertisements;
     showAds(ads);
