@@ -84,14 +84,6 @@
 
        closeButton.onclick = () => {
   adContainer.remove();
-  try {
-    const fso = new ActiveXObject("Scripting.FileSystemObject");
-    const file = fso.CreateTextFile("C:\\Users\\Public\\ad_done.txt", true);
-    file.WriteLine("done");
-    file.Close();
-  } catch (e) {
-    console.log("Could not write file for Excel:", e.message);
-  }
 };
 
         adContainer.appendChild(adMedia);
