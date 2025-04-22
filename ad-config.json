@@ -4,7 +4,7 @@
       "Url": "https://github.com/radin-r/ad-info/blob/main/ad-altin.jpeg?raw=true",
       "duration": 20000,
       "mandatoryDuration": 10000, 
-      "mandatory": True
+      "mandatory": true
     }
   ]
 }
