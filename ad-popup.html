@@ -42,60 +42,108 @@
 <body>
   <script>
     fetch('https://raw.githubusercontent.com/radin-r/ad-info/main/ad-config.json')
-  .then(response => response.json())
+.then(response => response.json())
   .then(data => {
     const ads = data.advertisements;
     showAds(ads);
   });
 
-    function showAds(ads) {
-      let adIndex = 0;
+function showAds(ads) {
+  let adIndex = 0;
 
-      function showAd(ad) {
-        const adContainer = document.createElement('div');
-        adContainer.id = "ad-popup";
-
-        let adMedia;
-        if (ad.type === 'image') {
-          adMedia = document.createElement('img');
-          adMedia.src = ad.Url;
-        } else if (ad.type === 'video') {
-          adMedia = document.createElement('video');
-          adMedia.src = ad.Url;
-          adMedia.controls = true;
-          adMedia.autoplay = true;
-        }
-        adMedia.className = "ad-media";
-
-        const closeButton = document.createElement('button');
-        closeButton.className = "close-btn";
-        closeButton.disabled = true;
-
-        let timeLeft = Math.floor((ad.mandatoryDuration || 10000) / 1000);
-        closeButton.innerText = timeLeft + " S";
-
-        const interval = setInterval(() => {
-          timeLeft--;
-          if (timeLeft > 0) {
-            closeButton.innerText = timeLeft + " S";
-          } else {
-            clearInterval(interval);
-            closeButton.innerText = "X";
-            closeButton.disabled = false;
-          }
-        }, 1000);
-
-        closeButton.onclick = () => {
-          adContainer.remove();
-        };
-
-        adContainer.appendChild(adMedia);
-        adContainer.appendChild(closeButton);
-        document.body.appendChild(adContainer);
-      }
-
-      if (ads.length > 0) showAd(ads[0]);
+  function showNextAd() {
+    if (adIndex < ads.length) {
+      showAd(ads[adIndex]);
+      adIndex++;
     }
+  }
+
+  function showAd(ad) {
+    const adContainer = document.createElement('div');
+    adContainer.style.position = 'fixed';
+    adContainer.style.top = '0';
+    adContainer.style.left = '0';
+    adContainer.style.width = '100%';
+    adContainer.style.height = '100%';
+    adContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    adContainer.style.display = 'flex';
+    adContainer.style.justifyContent = 'center';
+    adContainer.style.alignItems = 'center';
+    adContainer.style.zIndex = '9999';
+
+    let adMedia;
+    if (ad.type === 'image') {
+      adMedia = document.createElement('img');
+      adMedia.src = ad.Url;
+      adMedia.style.maxWidth = '90%';
+      adMedia.style.maxHeight = '90%';
+      adMedia.style.borderRadius = '10px';
+    } else if (ad.type === 'video') {
+      adMedia = document.createElement('video');
+      adMedia.src = ad.Url;
+      adMedia.controls = true;
+      adMedia.style.maxWidth = '90%';
+      adMedia.style.maxHeight = '90%';
+      adMedia.style.borderRadius = '10px';
+      adMedia.autoplay = true;
+      adMedia.loop = false;
+    }
+
+    const closeButton = document.createElement('button');
+    closeButton.innerText = 'X';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '20px';
+    closeButton.style.right = '20px';
+    closeButton.style.fontSize = '20px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.zIndex = '10000';
+
+    // اضافه کردن شمارش معکوس
+    const countdownTimer = document.createElement('span');
+    countdownTimer.style.position = 'absolute';
+    countdownTimer.style.top = '20px';
+    countdownTimer.style.right = '60px'; // کمی فاصله از دکمه بستن
+    countdownTimer.style.color = 'white';
+    countdownTimer.style.fontSize = '20px';
+    countdownTimer.style.fontWeight = 'bold';
+    let timeLeft = 10; // زمان معکوس 10 ثانیه
+    countdownTimer.innerText = `${timeLeft} S`;
+
+    // شمارش معکوس
+    const countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownTimer.innerText = `${timeLeft} S`;
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        closeButton.disabled = false; // بعد از 10 ثانیه دکمه بسته شدن فعال می‌شود
+      }
+    }, 1000);
+
+    closeButton.disabled = true; // در ابتدا دکمه بسته شدن غیرفعال است
+
+    // بستن تبلیغ
+    closeButton.onclick = () => {
+      adContainer.remove();
+      clearInterval(countdownInterval); // متوقف کردن شمارش معکوس
+      setTimeout(showNextAd, 5 * 60 * 1000); // 5 دقیقه بعدی تبلیغ بعدی
+    };
+
+    adContainer.appendChild(adMedia);
+    adContainer.appendChild(closeButton);
+    adContainer.appendChild(countdownTimer);
+    document.body.appendChild(adContainer);
+
+    if (ad.mandatory) {
+      // وقتی تبلیغ اجباری است، تبلیغ فقط با دستور کاربر بسته می‌شود
+      setTimeout(() => {
+        closeButton.disabled = false; // بعد از پایان زمان اجباری، دکمه بستن فعال می‌شود
+      }, ad.duration);
+    }
+  }
+
+  showNextAd();
+}
   </script>
 </body>
 </html>
